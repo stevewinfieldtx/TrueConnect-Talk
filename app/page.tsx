@@ -1,5 +1,5 @@
 ﻿'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import axios from 'axios'
 
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
 
   const sendText = async () => {
     if (!myText.trim() || !joined) return
-    setMessages(prev => [...prev, \\You: \\\\])
+    setMessages(prev => [...prev, 'You: ' + myText])
     try {
       const toLang = myLang === 'en' ? 'vi' : 'en'
       const res = await axios.post('/api/translate', {
@@ -31,7 +31,7 @@ export default function Home() {
         toLang
       })
       const translated = res.data.translated
-      setMessages(prev => [...prev, \\Her: \\\\])
+      setMessages(prev => [...prev, 'Her: ' + translated])
     } catch (err) {
       console.error(err)
     }
@@ -61,8 +61,8 @@ export default function Home() {
               audioRef.current.src = res.data.audioUrl
               audioRef.current.play()
             }
-            setMessages(prev => [...prev, \\You: \\\\])
-            setMessages(prev => [...prev, \\Her: \\\\])
+            setMessages(prev => [...prev, 'You: ' + res.data.original])
+            setMessages(prev => [...prev, 'Her: ' + res.data.translated])
           } catch (err) {
             console.error('Translation failed', err)
           }
@@ -71,7 +71,7 @@ export default function Home() {
       recorder.start(250)
       setIsRecording(true)
     } catch (err) {
-      alert("Microphone access denied")
+      alert('Microphone access denied')
     }
   }
 
@@ -83,57 +83,57 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-6 flex flex-col">
-      <h1 className="text-3xl font-bold mb-6 text-center">Real-time VN-EN Voice & Text</h1>
+    <main style={{minHeight: '100vh', backgroundColor: '#111827', color: 'white', padding: '24px', display: 'flex', flexDirection: 'column'}}>
+      <h1 style={{fontSize: '30px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center'}}>Real-time VN-EN Voice & Text</h1>
       {!joined ? (
-        <div className="mb-6 flex gap-4 justify-center">
+        <div style={{marginBottom: '24px', display: 'flex', gap: '16px', justifyContent: 'center'}}>
           <input
             type="text"
             placeholder="Enter room code"
             value={roomCode}
             onChange={e => setRoomCode(e.target.value)}
-            className="bg-gray-800 p-3 rounded"
+            style={{backgroundColor: '#1f2937', padding: '12px', borderRadius: '4px', color: 'white'}}
           />
-          <button onClick={joinRoom} className="bg-blue-600 px-6 py-3 rounded hover:bg-blue-700">
+          <button onClick={joinRoom} style={{backgroundColor: '#2563eb', paddingLeft: '24px', paddingRight: '24px', padding: '12px', borderRadius: '4px', cursor: 'pointer'}}>
             Join Room
           </button>
         </div>
       ) : (
-        <div className="mb-4 text-center">
+        <div style={{marginBottom: '16px', textAlign: 'center'}}>
           <label>My Language: </label>
-          <select value={myLang} onChange={e => setMyLang(e.target.value)} className="bg-gray-800 p-2 rounded">
+          <select value={myLang} onChange={e => setMyLang(e.target.value)} style={{backgroundColor: '#1f2937', padding: '8px', borderRadius: '4px', color: 'white'}}>
             <option value="en">English</option>
             <option value="vi">Vietnamese</option>
           </select>
         </div>
       )}
-      <div className="flex-1 bg-gray-900 rounded-lg p-4 mb-6 overflow-y-auto max-h-96">
-        {messages.map((msg, i) => <p key={i} className="mb-2">{msg}</p>)}
+      <div style={{flex: 1, backgroundColor: '#111111', borderRadius: '8px', padding: '16px', marginBottom: '24px', overflowY: 'auto', maxHeight: '384px'}}>
+        {messages.map((msg, i) => <p key={i} style={{marginBottom: '8px'}}>{msg}</p>)}
       </div>
-      <div className="flex flex-col items-center gap-6">
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px'}}>
         <button
           onClick={isRecording ? stopRecording : startRecording}
           disabled={!joined}
-          className="w-32 h-32 rounded-full text-2xl font-bold bg-red-600 hover:bg-red-700"
+          style={{width: '128px', height: '128px', borderRadius: '50%', fontSize: '18px', fontWeight: 'bold', backgroundColor: isRecording ? '#dc2626' : '#4b5563', cursor: joined ? 'pointer' : 'not-allowed', color: 'white', border: 'none'}}
         >
           {isRecording ? 'STOP' : 'TALK'}
         </button>
-        <div className="w-full max-w-xl flex gap-3">
+        <div style={{width: '100%', maxWidth: '448px', display: 'flex', gap: '12px'}}>
           <input
             type="text"
             value={myText}
             onChange={e => setMyText(e.target.value)}
             placeholder="Or type here..."
-            className="flex-1 bg-gray-800 p-4 rounded"
+            style={{flex: 1, backgroundColor: '#1f2937', padding: '16px', borderRadius: '4px', color: 'white', opacity: joined ? 1 : 0.5}}
             onKeyDown={e => e.key === 'Enter' && sendText()}
             disabled={!joined}
           />
-          <button onClick={sendText} className="bg-green-700 px-6 py-4 rounded hover:bg-green-600" disabled={!joined}>
+          <button onClick={sendText} style={{backgroundColor: '#16a34a', paddingLeft: '24px', paddingRight: '24px', padding: '16px', borderRadius: '4px', cursor: joined ? 'pointer' : 'not-allowed', color: 'white', border: 'none'}} disabled={!joined}>
             Send
           </button>
         </div>
       </div>
-      <audio ref={audioRef} className="hidden" />
+      <audio ref={audioRef} style={{display: 'none'}} />
     </main>
   )
 }
