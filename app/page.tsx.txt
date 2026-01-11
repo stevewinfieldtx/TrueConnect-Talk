@@ -1,0 +1,18 @@
+'use client'
+import { useState, useRef } from 'react'
+
+export default function Home() {
+  const [isRecording, setIsRecording] = useState(false)
+  const [messages, setMessages] = useState<string[]>([])
+  const [roomCode, setRoomCode] = useState('')
+  const [myText, setMyText] = useState('')
+  const [joined, setJoined] = useState(false)
+
+  return (
+    <main style={{ minHeight: '100vh', backgroundColor: '#111827', color: 'white', padding: '24px' }}>
+      <h1>TrueConnect-Talk</h1>
+      <p>Real-time Voice and Text Translation App</p>
+      <p>Coming Soon</p>
+    </main>
+  )
+}
