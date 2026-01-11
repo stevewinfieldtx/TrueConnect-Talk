@@ -21,7 +21,8 @@ export default function Home() {
 
   const sendText = async () => {
     if (!myText.trim() || !joined) return
-    setMessages(prev => [...prev, 'You: ' + myText])
+    const msg1 = 'You: ' + myText
+    setMessages(prev => [...prev, msg1])
     try {
       const toLang = myLang === 'en' ? 'vi' : 'en'
       const res = await axios.post('/api/translate', {
@@ -31,7 +32,8 @@ export default function Home() {
         toLang
       })
       const translated = res.data.translated
-      setMessages(prev => [...prev, 'Her: ' + translated])
+      const msg2 = 'Her: ' + translated
+      setMessages(prev => [...prev, msg2])
     } catch (err) {
       console.error(err)
     }
@@ -61,8 +63,9 @@ export default function Home() {
               audioRef.current.src = res.data.audioUrl
               audioRef.current.play()
             }
-            setMessages(prev => [...prev, 'You: ' + res.data.original])
-            setMessages(prev => [...prev, 'Her: ' + res.data.translated])
+            const msg3 = 'You: ' + res.data.original
+            const msg4 = 'Her: ' + res.data.translated
+            setMessages(prev => [...prev, msg3, msg4])
           } catch (err) {
             console.error('Translation failed', err)
           }
@@ -83,57 +86,69 @@ export default function Home() {
   }
 
   return (
-    <main style={{minHeight: '100vh', backgroundColor: '#111827', color: 'white', padding: '24px', display: 'flex', flexDirection: 'column'}}>
-      <h1 style={{fontSize: '30px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center'}}>Real-time VN-EN Voice & Text</h1>
+    <main style={{ minHeight: '100vh', backgroundColor: '#111827', color: 'white', padding: '24px', display: 'flex', flexDirection: 'column' }}>
+      <h1 style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center' }}>Real-time VN-EN Voice & Text</h1>
       {!joined ? (
-        <div style={{marginBottom: '24px', display: 'flex', gap: '16px', justifyContent: 'center'}}>
+        <div style={{ marginBottom: '24px', display: 'flex', gap: '16px', justifyContent: 'center' }}>
           <input
             type="text"
             placeholder="Enter room code"
             value={roomCode}
-            onChange={e => setRoomCode(e.target.value)}
-            style={{backgroundColor: '#1f2937', padding: '12px', borderRadius: '4px', color: 'white'}}
+            onChange={(e) => setRoomCode(e.target.value)}
+            style={{ backgroundColor: '#1f2937', padding: '12px', borderRadius: '4px', color: 'white' }}
           />
-          <button onClick={joinRoom} style={{backgroundColor: '#2563eb', paddingLeft: '24px', paddingRight: '24px', padding: '12px', borderRadius: '4px', cursor: 'pointer'}}>
+          <button onClick={joinRoom} style={{ backgroundColor: '#2563eb', padding: '12px 24px', borderRadius: '4px', cursor: 'pointer', color: 'white', border: 'none' }}>
             Join Room
           </button>
         </div>
       ) : (
-        <div style={{marginBottom: '16px', textAlign: 'center'}}>
+        <div style={{ marginBottom: '16px', textAlign: 'center' }}>
           <label>My Language: </label>
-          <select value={myLang} onChange={e => setMyLang(e.target.value)} style={{backgroundColor: '#1f2937', padding: '8px', borderRadius: '4px', color: 'white'}}>
+          <select value={myLang} onChange={(e) => setMyLang(e.target.value)} style={{ backgroundColor: '#1f2937', padding: '8px', borderRadius: '4px', color: 'white', marginLeft: '8px' }}>
             <option value="en">English</option>
             <option value="vi">Vietnamese</option>
           </select>
         </div>
       )}
-      <div style={{flex: 1, backgroundColor: '#111111', borderRadius: '8px', padding: '16px', marginBottom: '24px', overflowY: 'auto', maxHeight: '384px'}}>
-        {messages.map((msg, i) => <p key={i} style={{marginBottom: '8px'}}>{msg}</p>)}
+      <div style={{ flex: 1, backgroundColor: '#111111', borderRadius: '8px', padding: '16px', marginBottom: '24px', overflowY: 'auto', maxHeight: '384px' }}>
+        {messages.map((msg, i) => (
+          <p key={i} style={{ marginBottom: '8px' }}>{msg}</p>
+        ))}
       </div>
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px'}}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
         <button
           onClick={isRecording ? stopRecording : startRecording}
           disabled={!joined}
-          style={{width: '128px', height: '128px', borderRadius: '50%', fontSize: '18px', fontWeight: 'bold', backgroundColor: isRecording ? '#dc2626' : '#4b5563', cursor: joined ? 'pointer' : 'not-allowed', color: 'white', border: 'none'}}
+          style={{
+            width: '128px',
+            height: '128px',
+            borderRadius: '50%',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            backgroundColor: isRecording ? '#dc2626' : '#4b5563',
+            cursor: joined ? 'pointer' : 'not-allowed',
+            color: 'white',
+            border: 'none'
+          }}
         >
           {isRecording ? 'STOP' : 'TALK'}
         </button>
-        <div style={{width: '100%', maxWidth: '448px', display: 'flex', gap: '12px'}}>
+        <div style={{ width: '100%', maxWidth: '448px', display: 'flex', gap: '12px' }}>
           <input
             type="text"
             value={myText}
-            onChange={e => setMyText(e.target.value)}
+            onChange={(e) => setMyText(e.target.value)}
             placeholder="Or type here..."
-            style={{flex: 1, backgroundColor: '#1f2937', padding: '16px', borderRadius: '4px', color: 'white', opacity: joined ? 1 : 0.5}}
-            onKeyDown={e => e.key === 'Enter' && sendText()}
+            style={{ flex: 1, backgroundColor: '#1f2937', padding: '16px', borderRadius: '4px', color: 'white' }}
+            onKeyDown={(e) => e.key === 'Enter' && sendText()}
             disabled={!joined}
           />
-          <button onClick={sendText} style={{backgroundColor: '#16a34a', paddingLeft: '24px', paddingRight: '24px', padding: '16px', borderRadius: '4px', cursor: joined ? 'pointer' : 'not-allowed', color: 'white', border: 'none'}} disabled={!joined}>
+          <button onClick={sendText} style={{ backgroundColor: '#16a34a', padding: '16px 24px', borderRadius: '4px', cursor: joined ? 'pointer' : 'not-allowed', color: 'white', border: 'none' }} disabled={!joined}>
             Send
           </button>
         </div>
       </div>
-      <audio ref={audioRef} style={{display: 'none'}} />
+      <audio ref={audioRef} style={{ display: 'none' }} />
     </main>
   )
 }
