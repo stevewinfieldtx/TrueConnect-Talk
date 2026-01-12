@@ -181,8 +181,8 @@ export default function Home() {
 
   if (!joined) return (
           <main style={{ minHeight: '100vh', backgroundColor: '#111827', color: 'white', padding: 24 }}>
-                    <h1 style={{ fontSize: 30, textAlign: 'center', marginBottom: 24 }}>TrueConnect-Talk</h1>h1>
-                    <p style={{ textAlign: 'center', marginBottom: 24, color: '#9ca3af' }}>Real-time voice translation</p>p>
+                    <h1 style={{ fontSize: 30, textAlign: 'center', marginBottom: 24 }}>TrueConnect-Talk</h1>
+                    <p style={{ textAlign: 'center', marginBottom: 24, color: '#9ca3af' }}>Real-time voice translation</p>
                     <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
                                 <input
                                               placeholder="Room code"
@@ -194,58 +194,58 @@ export default function Home() {
                                               value={myLang}
                                               onChange={e => setMyLang(e.target.value)}
                                               style={{ backgroundColor: '#374151', padding: 12, borderRadius: 4, color: 'white', border: 'none' }}>
-                                              <option value="en">I speak English</option>option>
-                                          <option value="vi">Tôi nói tiếng Việt</option>option>
-                                </select>select>
+                                              <option value="en">I speak English</option>
+                                          <option value="vi">Tôi nói tiếng Việt</option>
+                                </select>
                             <button
                                           onClick={() => setJoined(true)}
                                           disabled={!roomCode.trim()}
-                                          style={{ backgroundColor: '#2563eb', padding: '12px 24px', borderRadius: 4, color: 'white', border: 'none' }}>Join</button>button>
-                    </div>div>
-          </main>main>
+                                          style={{ backgroundColor: '#2563eb', padding: '12px 24px', borderRadius: 4, color: 'white', border: 'none' }}>Join</button>
+                    </div>
+          </main>
         )
       
         return (
           <main style={{ minHeight: '100vh', backgroundColor: '#111827', color: 'white', padding: 24 }}>
                 <audio ref={remoteAudioRef} autoPlay />
                 <div style={{ textAlign: 'center', marginBottom: 16 }}>
-                        <span>Room: {roomCode} | </span>span>
-                        <span>Language: {myLang === 'en' ? 'English' : 'Vietnamese'}</span>span>
-                </div>div>
+                        <span>Room: {roomCode} | </span>
+                        <span>Language: {myLang === 'en' ? 'English' : 'Vietnamese'}</span>
+                </div>
           
               {liveText && (
                       <div style={{ backgroundColor: '#1e3a5f', padding: 12, borderRadius: 8, marginBottom: 16, textAlign: 'center' }}>
-                                <span style={{ color: '#9ca3af' }}>You: </span>span>{liveText}
-                      </div>div>
+                                <span style={{ color: '#9ca3af' }}>You: </span>{liveText}
+                      </div>
                 )}
           
                 <div style={{ backgroundColor: '#374151', borderRadius: 8, padding: 16, minHeight: 300, marginBottom: 16, overflowY: 'auto' }}>
                     {messages.length === 0 && (
-                        <p style={{ color: '#6b7280', textAlign: 'center' }}>Press Talk to start speaking. Your voice will be heard by others while your words are translated.</p>p>
+                        <p style={{ color: '#6b7280', textAlign: 'center' }}>Press Talk to start speaking. Your voice will be heard by others while your words are translated.</p>
                         )}
                     {messages.map(m => (
                         <div key={m.id} style={{ marginBottom: 12, padding: 12, backgroundColor: m.sender === userId ? '#1e3a5f' : '#4b5563', borderRadius: 8 }}>
                                     <p style={{ fontSize: 18 }}>
-                                                  <strong>{m.fromLang === 'en' ? '🇺🇸' : '🇻🇳'}</strong>strong> {m.text}
-                                    </p>p>
+                                                  <strong>{m.fromLang === 'en' ? '🇺🇸' : '🇻🇳'}</strong> {m.text}
+                                    </p>
                                     <p style={{ color: '#9ca3af', marginTop: 4 }}>
-                                                  <strong>{m.fromLang === 'en' ? '🇻🇳' : '🇺🇸'}</strong>strong> {m.translated}
-                                    </p>p>
-                        </div>div>
+                                                  <strong>{m.fromLang === 'en' ? '🇻🇳' : '🇺🇸'}</strong> {m.translated}
+                                    </p>
+                        </div>
                       ))}
-                </div>div>
+                </div>
           
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                     {!isLive ? (
                         <button onClick={startCall} style={{ backgroundColor: '#16a34a', padding: '16px 48px', borderRadius: 8, color: 'white', border: 'none', fontSize: 18 }}>
                                     🎤 Talk
-                        </button>button>
+                        </button>
                       ) : (
                         <button onClick={endCall} style={{ backgroundColor: '#dc2626', padding: '16px 48px', borderRadius: 8, color: 'white', border: 'none', fontSize: 18 }}>
                                     ⏹ End
-                        </button>button>
+                        </button>
                         )}
-                </div>div>
-          </main>main>
+                </div>
+          </main>
         )
-}</option>
+}
