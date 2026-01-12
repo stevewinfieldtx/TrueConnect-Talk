@@ -9,7 +9,6 @@ interface Message {
   translated: string
   fromLang: string
   sender: string
-  audioUrl?: string
 }
 
 export default function Home() {
@@ -20,59 +19,41 @@ export default function Home() {
   const [myLang, setMyLang] = useState('en')
   const [loading, setLoading] = useState(false)
   const [userId] = useState(() => Math.random().toString(36).substring(7))
-  const [isRecording, setIsRecording] = useState(false)
-  const [gender, setGender] = useState('male')
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const chunksRef = useRef<Blob[]>([])
+  const [voiceEnabled, setVoiceEnabled] = useState(false)
+  const [voiceGender, setVoiceGender] = useState('male')
+  const voiceEnabledRef = useRef(voiceEnabled)
+  const voiceGenderRef = useRef(voiceGender)
+  const myLangRef = useRef(myLang)
+
+  // Keep refs in sync
+  useEffect(() => { voiceEnabledRef.current = voiceEnabled }, [voiceEnabled])
+  useEffect(() => { voiceGenderRef.current = voiceGender }, [voiceGender])
+  useEffect(() => { myLangRef.current = myLang }, [myLang])
 
   useEffect(() => {
     if (!joined || !roomCode) return
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER! })
     const channel = pusher.subscribe('room-' + roomCode)
-    channel.bind('new-message', (data: Message) => {
+    channel.bind('new-message', async (data: Message) => {
       setMessages(prev => [...prev, data])
-      if (data.sender !== userId && data.audioUrl) {
-        new Audio(data.audioUrl).play().catch(() => {})
+      // If voice enabled and message is from someone else, speak the translation
+      if (voiceEnabledRef.current && data.sender !== userId) {
+        const textToSpeak = data.fromLang === myLangRef.current ? data.translated : data.text
+        try {
+          const res = await axios.post('/api/tts', { text: textToSpeak, gender: voiceGenderRef.current })
+          if (res.data.audioUrl) {
+            new Audio(res.data.audioUrl).play().catch(() => {})
+          }
+        } catch {}
       }
     })
     return () => { channel.unbind_all(); pusher.unsubscribe('room-' + roomCode); pusher.disconnect() }
   }, [joined, roomCode, userId])
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mr = new MediaRecorder(stream)
-      mediaRecorderRef.current = mr
-      chunksRef.current = []
-      mr.ondataavailable = (e) => chunksRef.current.push(e.data)
-      mr.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
-        stream.getTracks().forEach(t => t.stop())
-        await sendAudio(blob)
-      }
-      mr.start()
-      setIsRecording(true)
-    } catch { alert('Mic access denied') }
-  }
-
-  const stopRecording = () => { mediaRecorderRef.current?.stop(); setIsRecording(false) }
-
-  const sendAudio = async (blob: Blob) => {
-    setLoading(true)
-    const fd = new FormData()
-    fd.append('audio', blob, 'rec.webm')
-    fd.append('roomCode', roomCode)
-    fd.append('fromLang', myLang)
-    fd.append('sender', userId)
-    fd.append('gender', gender)
-    await axios.post('/api/voice', fd).catch(() => {})
-    setLoading(false)
-  }
-
   const handleSend = async () => {
     if (!myText.trim() || loading) return
     setLoading(true)
-    await axios.post('/api/message', { roomCode, text: myText, fromLang: myLang, sender: userId, gender }).catch(() => {})
+    await axios.post('/api/message', { roomCode, text: myText, fromLang: myLang, sender: userId }).catch(() => {})
     setMyText('')
     setLoading(false)
   }
@@ -91,7 +72,17 @@ export default function Home() {
     <main style={{ minHeight: '100vh', backgroundColor: '#111827', color: 'white', padding: 24 }}>
       <div style={{ textAlign: 'center', marginBottom: 16 }}>
         Room: {roomCode} | Lang: <select value={myLang} onChange={e => setMyLang(e.target.value)} style={{ backgroundColor: '#374151', padding: 8, borderRadius: 4, color: 'white' }}><option value="en">English</option><option value="vi">Vietnamese</option></select>
-        {' '}Voice: <select value={gender} onChange={e => setGender(e.target.value)} style={{ backgroundColor: '#374151', padding: 8, borderRadius: 4, color: 'white' }}><option value="male">Male</option><option value="female">Female</option></select>
+        {' '}
+        <label style={{ marginLeft: 16, cursor: 'pointer' }}>
+          <input type="checkbox" checked={voiceEnabled} onChange={e => setVoiceEnabled(e.target.checked)} style={{ marginRight: 6 }} />
+          🔊 Voice
+        </label>
+        {voiceEnabled && (
+          <select value={voiceGender} onChange={e => setVoiceGender(e.target.value)} style={{ backgroundColor: '#374151', padding: 8, borderRadius: 4, color: 'white', marginLeft: 8 }}>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        )}
       </div>
       <div style={{ backgroundColor: '#374151', borderRadius: 8, padding: 16, minHeight: 300, marginBottom: 16 }}>
         {messages.map(m => (
@@ -102,8 +93,7 @@ export default function Home() {
         ))}
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={isRecording ? stopRecording : startRecording} disabled={loading} style={{ backgroundColor: isRecording ? '#dc2626' : '#7c3aed', padding: '12px 24px', borderRadius: 4, color: 'white', border: 'none' }}>{isRecording ? '⏹ Stop' : '🎤 Speak'}</button>
-        <input value={myText} onChange={e => setMyText(e.target.value)} placeholder="Or type..." onKeyDown={e => e.key === 'Enter' && handleSend()} style={{ flex: 1, backgroundColor: '#374151', padding: 12, borderRadius: 4, color: 'white', border: 'none' }} />
+        <input value={myText} onChange={e => setMyText(e.target.value)} placeholder="Type message..." onKeyDown={e => e.key === 'Enter' && handleSend()} style={{ flex: 1, backgroundColor: '#374151', padding: 12, borderRadius: 4, color: 'white', border: 'none' }} />
         <button onClick={handleSend} disabled={loading} style={{ backgroundColor: '#16a34a', padding: '12px 24px', borderRadius: 4, color: 'white', border: 'none' }}>{loading ? '...' : 'Send'}</button>
       </div>
     </main>
