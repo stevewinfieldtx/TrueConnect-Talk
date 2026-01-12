@@ -64,7 +64,7 @@ export default function Home() {
                                       <input type="text" placeholder="Enter room code" value={roomCode} onChange={e => setRoomCode(e.target.value)} style={{ backgroundColor: '#374151', padding: 12, borderRadius: 4, color: 'white', border: 'none' }} />
                                       <button onClick={() => setJoined(true)} disabled={!roomCode.trim()} style={{ backgroundColor: '#2563eb', padding: '12px 24px', borderRadius: 4, color: 'white', border: 'none', cursor: 'pointer' }}>Join</button>button>
                           </div>div>
-                </main>main>
+                </main>
               )
   }
 
@@ -91,6 +91,6 @@ export default function Home() {
                       <input type="text" value={myText} onChange={e => setMyText(e.target.value)} placeholder="Type message..." onKeyDown={e => e.key === 'Enter' && handleSend()} disabled={loading} style={{ flex: 1, backgroundColor: '#374151', padding: 12, borderRadius: 4, color: 'white', border: 'none' }} />
                       <button onClick={handleSend} disabled={loading} style={{ backgroundColor: '#16a34a', padding: '12px 24px', borderRadius: 4, color: 'white', border: 'none' }}>{loading ? '...' : 'Send'}</button>button>
               </div>div>
-        </main>main>
+        </main>
       )
 }</span>
